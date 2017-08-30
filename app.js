@@ -1122,7 +1122,6 @@ var request = sg.emptyRequest({
   path: '/v3/mail/send',
   body: mail.toJSON()
 });
-<<<<<<< HEAD
 
 sg.API(request, function (error, response) {
   if (error) {
@@ -1171,8 +1170,6 @@ const client = new Client({
   password: '345bcc1e574723a287d6f4b05717ffab2890f592fc0ed60281a764cd2115ace5',
 })
 
-=======
-
 sg.API(request, function (error, response) {
   if (error) {
     console.log('Error response received');
@@ -1220,7 +1217,6 @@ const client = new Client({
   password: '345bcc1e574723a287d6f4b05717ffab2890f592fc0ed60281a764cd2115ace5',
 })
 
->>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
 client.connect()
 let rows = [];
 let sql = 'INSERT INTO royalbooking(city_name, hotel_name,client_name,client_email,client_address,check_in,check_out)' +
