@@ -97,6 +97,47 @@ app.post('/webhook/', function (req, res) {
 
 
 
+
+	// Make sure this is a page subscription
+	if (data.object == 'page') {
+		// Iterate over each entry
+		// There may be multiple if batched
+		data.entry.forEach(function (pageEntry) {
+			var pageID = pageEntry.id;
+			var timeOfEvent = pageEntry.time;
+
+			// Iterate over each messaging event
+			pageEntry.messaging.forEach(function (messagingEvent) {
+				if (messagingEvent.optin) {
+					receivedAuthentication(messagingEvent);
+				} else if (messagingEvent.message) {
+					receivedMessage(messagingEvent);
+				} else if (messagingEvent.delivery) {
+					receivedDeliveryConfirmation(messagingEvent);
+				} else if (messagingEvent.postback) {
+					receivedPostback(messagingEvent);
+				} else if (messagingEvent.read) {
+					receivedMessageRead(messagingEvent);
+				} else if (messagingEvent.account_linking) {
+					receivedAccountLink(messagingEvent);
+				} else {
+					console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+				}
+			});
+		});
+
+		// Assume all went well.
+		// You must send back a 200, within 20 seconds
+		res.sendStatus(200);
+	}
+});
+app.post('/finalbooking/', function (req, res) {
+	var data = req.body;
+	console.log("Json data after submition" ,JSON.stringify(data));
+	var myname = data.name; 
+	console.log(myname);
+res.redirect("https://www.messenger.com/closeWindow/?image_url='https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Swimming_pool%2C_Royal_Orchid_Sheraton_Riverview_Hotel_%288285776030%29_%282%29.jpg/640px-Swimming_pool%2C_Royal_Orchid_Sheraton_Riverview_Hotel_%288285776030%29_%282%29.jpg'&display_text=Thankyou");
+
 	// Make sure this is a page subscription
 	if (data.object == 'page') {
 		// Iterate over each entry
@@ -194,13 +235,102 @@ function handleEcho(messageId, appId, metadata) {
 	console.log("Received echo for message %s and app %d with metadata %s", messageId, appId, metadata);
 }
 
-function handleApiAiAction(sender, action, responseText, contexts, parameters) {
+function handleApiAiAction(senderID, action, responseText, contexts, parameters) {
+     
+
 	switch (action) {
+        case "final_booking":
+		console.log("excuted");
+		var currentDate = new Date();
+			if (isDefined(contexts[0]) && contexts[0].name == 'city-name' && contexts[0].parameters) {
+				let geo_city = (isDefined(contexts[0].parameters['geo-city'])
+				&& contexts[0].parameters['geo-city']!= '') ? contexts[0].parameters['geo-city'] : '';
+				let user_name = (isDefined(contexts[0].parameters['user-name'])
+				&& contexts[0].parameters['user-name']!= '') ? contexts[0].parameters['user-name'] : '';
+				let address = (isDefined(contexts[0].parameters['address'])
+				&& contexts[0].parameters['address']!= '') ? contexts[0].parameters['address'] : '';
+				let check_in = (isDefined(contexts[0].parameters['check-in'])
+				&& contexts[0].parameters['check-in']!= '') ? contexts[0].parameters['check-in'] : '';
+				
+                let check_out = (isDefined(contexts[0].parameters['check-out'])
+				&& contexts[0].parameters['check-out']!= '') ? contexts[0].parameters['check-out'] : '';
+				let hotel_name = (isDefined(contexts[0].parameters['hotel-name'])
+				&& contexts[0].parameters['hotel-name']!= '') ? contexts[0].parameters['hotel-name'] : '';
+				let client_email = (isDefined(contexts[0].parameters['client-email'])
+				&& contexts[0].parameters['client-email']!= '') ? contexts[0].parameters['client-email'] : '';
+
+				if (geo_city !== '' && user_name != '' && address != '' && check_in !== '' && check_out !='' && hotel_name !== '' && client_email !='') {
+				let emailContent = 'A new booking request from <b>' + user_name + '</b> for the hotel <b>' + hotel_name +'</b> in '+ geo_city +
+						'.<br><br> Client email id: ' + client_email + '.' +
+						'.<br><br> Check-in Date: ' + check_in + '.' +
+						'.<br><br> Check-out Date: ' + check_out + '.' +
+						'.<br><br> Client Address: ' + address + '.';
+
+						let clientemailcontent = 'Dear '+ user_name +'<br><br>You have made booking for the hotel <b>' + hotel_name +'</b> in '+ geo_city +' with name <b>'+ user_name + 
+						'</b> Following are the booking details.<br><br>Email id: ' + client_email + '.' +
+						'.<br><br> Check-in Date: ' + check_in + '.' +
+						'.<br><br> Check-out Date: ' + check_out + '.' +
+						'.<br><br> Address: ' + address + '.';
+
+				  sendEmail('New Booking Request', emailContent);
+				  clientSendEmail ('Bookign details', clientemailcontent,client_email);
+                  storeInDatabase(geo_city,user_name,address,check_in,check_out,hotel_name,client_email);
+
+                  sendTextMessage(senderID, responseText);
+				} else {
+					sendTextMessage(senderID, responseText);
+				}
+			
+
+				}
+				
+
+				
+			break;
+           
+
+			case "royalhello":
+		sendTextMessage( senderID, "Hi I am bot designed for Royal Orchid Hotels, Check Following Menu.");
+        sendGenericMessageWelcome(senderID);
+
+<<<<<<< HEAD
+
+		break;
+		case "getcityname":
+        
+			let geo_city = contexts[0].parameters['geo_city'];
+=======
+		break;
+		case "booking-process":
+        
+			let geo_city = contexts[0].parameters['city-name'];
+>>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
+				console.log(geo_city);
+				
+	
+		break;
 		default:
 			//unhandled action, just send back the text
-			sendTextMessage(sender, responseText);
+			sendTextMessage(senderID, responseText);
 	}
 }
+
+function BroadcastFunction(senderID)
+{
+var schedule = require('node-schedule');
+ 
+<<<<<<< HEAD
+var j = schedule.scheduleJob('30 * * * * *', function(){
+=======
+var j = schedule.scheduleJob('2 * * * *', function(){
+>>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
+	console.log("broadcast started");
+	sendGenericMessageWelcome(senderID);
+
+});
+}
+
+
 
 function handleMessage(message, sender) {
 	switch (message.type) {
@@ -340,7 +470,7 @@ function sendToApiAi(sender, text) {
 
 	sendTypingOn(sender);
 	let apiaiRequest = apiAiService.textRequest(text, {
-		sessionId: sessionIds.get(sender)
+		sessionId: sender
 	});
 
 	apiaiRequest.on('response', (response) => {
@@ -357,6 +487,7 @@ function sendToApiAi(sender, text) {
 
 
 function sendTextMessage(recipientId, text) {
+
 	var messageData = {
 		recipient: {
 			id: recipientId
@@ -485,6 +616,9 @@ function sendFileMessage(recipientId, fileName) {
  *
  */
 function sendButtonMessage(recipientId, text, buttons) {
+
+
+
 	var messageData = {
 		recipient: {
 			id: recipientId
@@ -504,6 +638,83 @@ function sendButtonMessage(recipientId, text, buttons) {
 	callSendAPI(messageData);
 }
 
+function getStartedText(senderID)
+{
+	request({
+		uri: 'https://graph.facebook.com/v2.7/' + senderID,
+		qs: {
+			access_token: config.FB_PAGE_TOKEN
+		}
+
+	}, function (error, response, body) {
+		if (!error && response.statusCode == 200){
+
+			var user = JSON.parse(body);
+			sendTextMessage(senderID, "Welcome "+user.first_name+' '+user.last_name+" to Royal Orchid Hotels");
+			sendGenericMessageWelcome(senderID);
+	      
+		}
+		  else {
+				console.log("Cannot get data for fb user with id",
+					senderID);
+			}
+      });
+		 
+}
+
+function sendGenericMessageWelcome(recipientId, elements) {
+   
+	const { Client } = require('pg')
+const client = new Client({
+  host: 'ec2-54-163-236-33.compute-1.amazonaws.com',
+  port: 5432,
+  user: 'prasvxvvxgemxk',
+  database:'dchc5do5hsjbv3',
+  password: '345bcc1e574723a287d6f4b05717ffab2890f592fc0ed60281a764cd2115ace5',
+})
+
+client.connect()
+const query = client.query('SELECT news FROM public."tableInfo"', (err, res) => {
+if (err) {
+console.log(err);
+} 
+else
+{
+	let templateElement = [];
+	for(let i=0 ; i<res.rows.length;i++)
+	{
+		//console.log(res.rows[i].news)
+		templateElement.push(res.rows[i].news);
+		 
+		
+	}
+	//console.log(templateElement);
+	var messageData = {
+		recipient: {
+			id: recipientId
+		},
+		message: {
+			attachment: {
+				type: "template",
+				payload: {
+					template_type: "list",
+          elements: templateElement
+				}
+			}
+		}
+	};
+callSendAPI(messageData);
+  //let templateElement;
+  
+}
+ 
+
+	
+  client.end()
+})
+
+	
+}
 
 function sendGenericMessage(recipientId, elements) {
 	var messageData = {
@@ -613,6 +824,7 @@ function sendTypingOn(recipientId) {
  *
  */
 function sendTypingOff(recipientId) {
+	
 
 
 	var messageData = {
@@ -669,8 +881,9 @@ function greetUserText(userId) {
 			if (user.first_name) {
 				console.log("FB user: %s %s, %s",
 					user.first_name, user.last_name, user.gender);
+   
+ sendTextMessage(userId, "Welcome " + user.first_name + '!');
 
-				sendTextMessage(userId, "Welcome " + user.first_name + '!');
 			} else {
 				console.log("Cannot get data for fb user with id",
 					userId);
@@ -687,6 +900,9 @@ function greetUserText(userId) {
  * get the message id in a response 
  *
  */
+
+
+
 function callSendAPI(messageData) {
 	request({
 		uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -733,16 +949,46 @@ function receivedPostback(event) {
 	var payload = event.postback.payload;
 
 	switch (payload) {
-        case "Get_Started":
-         sendToApiAi(senderID,"aboutbot");
+		case "Get_Started":
+			// batch shedular code
+			//first read user firstname
+	   getStartedText(senderID);
+	   BroadcastFunction(senderID);
 
-	     break;
+		
+			/*let buttons = [
+					{
+						type:"postback",
+						title:"Book Now",
+						payload:"booking"
+					},
+				{
+						type:"web_url",
+						url:"http://www.royalorchidhotels.com/",
+					    title:"Offers",
+						
+					},
+				
+					{
+						type:"web_url",
+						url:"http://www.royalorchidhotels.com/about",
+						title:"About Us"
+					}
+					
+				];
 
-		default:
-			//unindentified payload
-			sendTextMessage(senderID, "I'm not sure what you want. Can you be more specific?");
-			break;
+				sendButtonMessage(senderID, "Welcome to Royal Orchid Hotels", buttons);
+				*/
+		      
+break;
+case "booking":
+sendToApiAi(senderID,"book me room");
 
+break;
+case "booknow":
+sendToApiAi(senderID,"final booking");
+
+break;
 	}
 
 	console.log("Received postback for user %d and page %d with payload '%s' " +
@@ -870,7 +1116,140 @@ function verifyRequestSignature(req, res, buf) {
 		}
 	}
 }
+//send mail to owner
+function sendEmail(subject ,content)
+{
+var helper = require('sendgrid').mail;
+var fromEmail = new helper.Email(config.EMAIL_FROM);
+var toEmail = new helper.Email(config.EMAIL_TO);
+var subject = subject;
+var content = new helper.Content('text/html', content);
+var mail = new helper.Mail(fromEmail, subject, toEmail, content);
 
+var sg = require('sendgrid')(config.SENDGRID_API_KEY);
+var request = sg.emptyRequest({
+  method: 'POST',
+  path: '/v3/mail/send',
+  body: mail.toJSON()
+});
+<<<<<<< HEAD
+
+sg.API(request, function (error, response) {
+  if (error) {
+    console.log('Error response received');
+  }
+  console.log(response.statusCode);
+  console.log(response.body);
+  console.log(response.headers);
+});
+}
+//
+function clientSendEmail(subject ,content , clientemail)
+{
+var helper = require('sendgrid').mail;
+var fromEmail = new helper.Email(config.EMAIL_TO);
+var toEmail = new helper.Email(clientemail);
+var subject = subject;
+var content = new helper.Content('text/html', content);
+var mail = new helper.Mail(fromEmail, subject, toEmail, content);
+
+var sg = require('sendgrid')(config.SENDGRID_API_KEY);
+var request = sg.emptyRequest({
+  method: 'POST',
+  path: '/v3/mail/send',
+  body: mail.toJSON()
+});
+
+sg.API(request, function (error, response) {
+  if (error) {
+    console.log('Error response received');
+  }
+  console.log(response.statusCode);
+  console.log(response.body);
+  console.log(response.headers);
+});
+}
+function storeInDatabase(geo_city,user_name,address,check_in,check_out,hotel_name,client_email)
+{
+	console.log("Storing data");
+	const { Client } = require('pg')
+const client = new Client({
+  host: 'ec2-54-163-236-33.compute-1.amazonaws.com',
+  port: 5432,
+  user: 'prasvxvvxgemxk',
+  database:'dchc5do5hsjbv3',
+  password: '345bcc1e574723a287d6f4b05717ffab2890f592fc0ed60281a764cd2115ace5',
+})
+
+=======
+
+sg.API(request, function (error, response) {
+  if (error) {
+    console.log('Error response received');
+  }
+  console.log(response.statusCode);
+  console.log(response.body);
+  console.log(response.headers);
+});
+}
+//
+function clientSendEmail(subject ,content , clientemail)
+{
+var helper = require('sendgrid').mail;
+var fromEmail = new helper.Email(config.EMAIL_TO);
+var toEmail = new helper.Email(clientemail);
+var subject = subject;
+var content = new helper.Content('text/html', content);
+var mail = new helper.Mail(fromEmail, subject, toEmail, content);
+
+var sg = require('sendgrid')(config.SENDGRID_API_KEY);
+var request = sg.emptyRequest({
+  method: 'POST',
+  path: '/v3/mail/send',
+  body: mail.toJSON()
+});
+
+sg.API(request, function (error, response) {
+  if (error) {
+    console.log('Error response received');
+  }
+  console.log(response.statusCode);
+  console.log(response.body);
+  console.log(response.headers);
+});
+}
+function storeInDatabase(geo_city,user_name,address,check_in,check_out,hotel_name,client_email)
+{
+	console.log("Storing data");
+	const { Client } = require('pg')
+const client = new Client({
+  host: 'ec2-54-163-236-33.compute-1.amazonaws.com',
+  port: 5432,
+  user: 'prasvxvvxgemxk',
+  database:'dchc5do5hsjbv3',
+  password: '345bcc1e574723a287d6f4b05717ffab2890f592fc0ed60281a764cd2115ace5',
+})
+
+>>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
+client.connect()
+let rows = [];
+let sql = 'INSERT INTO royalbooking(city_name, hotel_name,client_name,client_email,client_address,check_in,check_out)' +
+					'VALUES ($1, $2, $3, $4, $5, $6, $7)';
+client.query(sql, [
+					geo_city,
+					hotel_name,
+					user_name,
+					client_email,
+					address,
+					check_in,
+					check_out
+				], (err, res) => {
+  if (err) throw err
+  console.log(res)
+  client.end()
+})	
+
+}
 function isDefined(obj) {
 	if (typeof obj == 'undefined') {
 		return false;
