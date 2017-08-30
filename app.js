@@ -293,18 +293,14 @@ function handleApiAiAction(senderID, action, responseText, contexts, parameters)
 		sendTextMessage( senderID, "Hi I am bot designed for Royal Orchid Hotels, Check Following Menu.");
         sendGenericMessageWelcome(senderID);
 
-<<<<<<< HEAD
-
 		break;
 		case "getcityname":
         
 			let geo_city = contexts[0].parameters['geo_city'];
-=======
 		break;
 		case "booking-process":
         
 			let geo_city = contexts[0].parameters['city-name'];
->>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
 				console.log(geo_city);
 				
 	
@@ -318,18 +314,14 @@ function handleApiAiAction(senderID, action, responseText, contexts, parameters)
 function BroadcastFunction(senderID)
 {
 var schedule = require('node-schedule');
- 
-<<<<<<< HEAD
 var j = schedule.scheduleJob('30 * * * * *', function(){
-=======
 var j = schedule.scheduleJob('2 * * * *', function(){
->>>>>>> 461fba7c588a1e467fa7244f069f49390c01ae5c
 	console.log("broadcast started");
 	sendGenericMessageWelcome(senderID);
 
 });
 }
-
+}
 
 
 function handleMessage(message, sender) {

@@ -1,9 +1,9 @@
 module.exports = {
     FB_PAGE_TOKEN: 'EAAE7FbDzhWQBALLKor4rw6Sygu6JdtObmJnoYuu7WHJsDYXsdZCcmXrJcTzjZAY4RmBh4koXeZC4YkJTA2LCLnweCCLcYOO5aBD9ALcn99UOAToRNmrGp01NbZBLgfjV2hwZBud7ZAKXrT2flwiIsx08k5GyymqzFKi3z8tWmigPnuZBA27bAAP',
-    FB_VERIFY_TOKEN: 'jandutbot',
+    FB_VERIFY_TOKEN: 'jandutbot_rag',
     API_AI_CLIENT_ACCESS_TOKEN: '630f930ab95e4b5d8e846945a7528614',
     FB_APP_SECRET: '56a8faaa71e41470a94edee16fb2372e',
-    SERVER_URL: "https://raghvendra-testbot.herokuapp.com/",
+    SERVER_URL: "https://raghvendranaidu-newbot.herokuapp.com/",
     SENDGRID_API_KEY:'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',
     EMAIL_FROM:"raghvendranaidu.naidu@gmail.com",
     EMAIL_TO:"raghvendranaidu.naidu@gmail.com",
