@@ -296,11 +296,11 @@ function handleApiAiAction(senderID, action, responseText, contexts, parameters)
 		break;
 		case "getcityname":
         
-			let geo_city = contexts[0].parameters['geo_city'];
+		//	let geo_city = contexts[0].parameters['geo_city'];
 		break;
 		case "booking-process":
-        
-			let geo_city = contexts[0].parameters['city-name'];
+		
+		//	let geo_city = contexts[0].parameters['city-name'];
 				console.log(geo_city);
 				
 	
@@ -314,13 +314,11 @@ function handleApiAiAction(senderID, action, responseText, contexts, parameters)
 function BroadcastFunction(senderID)
 {
 var schedule = require('node-schedule');
-var j = schedule.scheduleJob('30 * * * * *', function(){
 var j = schedule.scheduleJob('2 * * * *', function(){
 	console.log("broadcast started");
 	sendGenericMessageWelcome(senderID);
 
 });
-}
 }
 
 
