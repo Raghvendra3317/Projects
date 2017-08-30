@@ -733,6 +733,11 @@ function receivedPostback(event) {
 	var payload = event.postback.payload;
 
 	switch (payload) {
+        case "Get_Started":
+         sendToApiAi(senderID,"aboutbot");
+
+	     break;
+
 		default:
 			//unindentified payload
 			sendTextMessage(senderID, "I'm not sure what you want. Can you be more specific?");
